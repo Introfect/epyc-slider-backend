@@ -59,21 +59,27 @@ export const startAuthFlow = async (req, res) => {
 
 export const handleAuthCallback = async (req, res) => {
   const { code } = req.query;
+  console.log(code, "wad");
   if (!code) {
     return res.status(400).send("Authorization code is required");
   }
 
   try {
-    const publicUrl = process.env.REDIRECT_URL;
+    const publicUrl = process.env.REDIRECT_RL;
+    console.log("main env", JSON.stringify(publicUrl));
+    console.log({
+      id: process.env.WEBFLOW_CLIENT_ID,
+      secret: process.env.WEBFLOW_CLIENT_SECRET,
+    });
     const accessToken = await WebflowClient.getAccessToken({
       clientId: process.env.WEBFLOW_CLIENT_ID,
       clientSecret: process.env.WEBFLOW_CLIENT_SECRET,
       code: code,
-      redirectUri: `${publicUrl}/auth/callback/`,
+      redirectUri: undefined,
     });
 
     await storeToken("user", accessToken);
-    console.log("Access token obtained and stored. Redirecting to frontend...");
+    console.log("Access token obtained and stored. Redirecting to webflow...");
     return res.redirect("https://www.webflow.com/dashboard");
   } catch (error) {
     console.error("Error fetching access token:", error);
