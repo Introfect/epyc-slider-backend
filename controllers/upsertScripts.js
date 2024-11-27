@@ -1,4 +1,5 @@
 import { getToken } from "../auth/token.js";
+import { inlineScript } from "../constants.js";
 
 export const upsertPageCustomCode = async (req, res) => {
   const pageId = req.params.pageId;
@@ -15,6 +16,7 @@ export const upsertPageCustomCode = async (req, res) => {
   try {
     const authToken = await getToken("user");
     console.log("Auth token retrieved successfully.");
+    console.log("TOKEN", authToken);
 
     const getRegisteredScriptsResponse = await fetch(
       `https://api.webflow.com/v2/sites/${siteId}/registered_scripts`,
@@ -39,12 +41,11 @@ export const upsertPageCustomCode = async (req, res) => {
 
     const registeredScriptData = await getRegisteredScriptsResponse.json();
     const hasHeadlink = registeredScriptData.registeredScripts.some(
-      (script) => script.id === "headlink"
+      (script) => script.id === "headerlink"
     );
 
     if (!hasHeadlink) {
       console.log('Registering "headlink" inline script.');
-      const inlineScript = "<script>Your inline script here</script>"; // Replace with your script
       const registerInlineScriptResponse = await fetch(
         `https://api.webflow.com/v2/sites/${siteId}/registered_scripts/inline`,
         {
@@ -56,7 +57,7 @@ export const upsertPageCustomCode = async (req, res) => {
           body: JSON.stringify({
             sourceCode: inlineScript,
             version: "0.0.1",
-            displayName: "headlink",
+            displayName: "headerlink",
           }),
         }
       );
